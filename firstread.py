@@ -1,7 +1,9 @@
-Itch = open("07302019.NASDAQ_ITCH50", "rb")
+import gzip
+Itch = gzip.open("itch50_05_18.gz", "rb")
 counts = {}
 last = {}
-over = {} 
+over = {}
+low = 0 
 n = 0 
 while True:
     prefix = Itch.read(2)
@@ -18,12 +20,15 @@ while True:
         price = int.from_bytes(message[32:36], "big")
         previous = last.get(stock, None)   
         if previous is not None:
-            delta = price - previous 
-            if abs(delta) > 32767:
+            delta = (price - previous) 
+            if 0 < abs(delta) < 4:
                 over[stock] = over.get(stock, 0) + 1
-                print(stock, delta)
+                low = low + 1
         last[stock] = price     
     counts[letter] = counts.get(letter,0) + 1 
     n = n + 1
+    if n % 10000000 == 0:
+        print(n)
 print(counts)
 print(over) 
+print(low)
