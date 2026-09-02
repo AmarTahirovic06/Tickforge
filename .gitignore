@@ -1,0 +1,13 @@
+cocotb_env/
+sim/*/sim_build/
+sim/*/results.xml
+sim_build/
+results.xml
+__pycache__/
+*.pyc
+*.xpr
+*.jou
+*.log
+.Xil/
+golden/*.gz
+golden/*.bingolden/trace.txt

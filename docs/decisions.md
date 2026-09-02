@@ -1,0 +1,4 @@
+Aug. 15th: Concatenation form makes widths visible, that's why I chose in the shift_reg.sv, line 13, to be in that format because it's easier to visualize [7:0] as being 8 bit places, rather than the shift and or form. 
+
+Aug. 30th: Countdown direction. You count down rather than up. Why: comparing against zero is a fixed, cheap check regardless of message length. Counting up would mean storing the target separately and doing a full 16-bit comparison every cycle.
+Transition threshold. The return to S_LEN fires when byte_count == 1, not == 0. Why: at that point the byte arriving is the last body byte, and the state assigned at that edge is what the FSM uses for the next byte — which is the next message's first prefix byte. Checking zero would leave you in S_BODY one cycle too long and consume that prefix byte as content. 
