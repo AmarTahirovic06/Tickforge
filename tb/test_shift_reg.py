@@ -24,11 +24,11 @@ async def test_shift_reg_assembles_bytes(dut):
     await RisingEdge(dut.clk)
     await Timer(1, unit="ns")
     assert dut.data_out.value == 0x2436, f"got {hex(dut.data_out.value)}"
-    dut.valid.value = 0
-    assert dut.data_out.value == 0x2436 
+    dut.valid.value = 0 
     dut.data_in.value = 0x66
     await RisingEdge(dut.clk)
     await Timer(1, unit="ns")
+    assert dut.data_out.value == 0x2436, f"got {hex(dut.data_out.value)}"
     dut.data_in.value = 0x77 
     dut.valid.value = 1
     await RisingEdge(dut.clk)
