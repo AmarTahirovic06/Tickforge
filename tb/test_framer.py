@@ -18,12 +18,15 @@ async def test_framer_finds_boundaries(dut):
     await RisingEdge(dut.clk)
     await Timer(1, unit="ns")
     dut.valid.value = 1 
-    stream = [0x00, 0x03, 0xAA, 0xBB, 0xCC, 0x00, 0x02, 0xDD, 0xEE]
-    expected = [S_LEN, S_BODY, S_BODY, S_BODY, S_LEN, S_LEN, S_BODY, S_BODY, S_LEN]
-    for i,(byte,exp) in enumerate(zip(stream,expected)):
+    stream = [0x00, 0x03, 0x50, 0xAA, 0xBB,
+        0x00, 0x03, 0x41, 0xCC, 0xDD,
+        0x00, 0x02, 0x50, 0xEE]
+    expected = [S_LEN, S_BODY, S_BODY, S_BODY, S_LEN, S_LEN, S_BODY, S_BODY, S_BODY, S_LEN, S_LEN, S_BODY, S_BODY, S_LEN]
+    expected_trade = [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1]
+    for i,(byte, exp, exp_trade) in enumerate(zip(stream, expected, expected_trade)):
         dut.data_in.value = byte
         await RisingEdge(dut.clk)
         await Timer(1, unit="ns")
-        assert dut.state.value == exp, f"byte{i} (0x{byte:02X}): expected {exp}, got {dut.state.value}"
+        assert dut.state.value == exp, f"byte{i} (0x{byte:02X}): is_trade_expected {exp_trade}, expected {exp}, got {dut.state.value}"
     
 
