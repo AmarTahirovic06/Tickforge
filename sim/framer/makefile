@@ -2,7 +2,7 @@ TOPDIR := $(abspath $(CURDIR)/../..)
 
 SIM = verilator
 TOPLEVEL_LANG = verilog
-VERILOG_SOURCES = $(TOPDIR)/rtl/framer.sv
+VERILOG_SOURCES = $(TOPDIR)/rtl/framer.sv $(TOPDIR)/rtl/shift_reg.sv
 TOPLEVEL = framer
 COCOTB_TEST_MODULES = test_framer
 
