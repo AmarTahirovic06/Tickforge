@@ -6,12 +6,34 @@ module framer
     input logic [7:0] data_in, 
     input logic valid,
     output state_t state,
-    output logic is_trade
-); 
+    output logic is_trade,
+    output logic [63:0] ticker, 
+    output logic [31:0] price
+);     
     logic [7:0] len_high;
     logic [15:0] byte_count; 
+    logic [15:0] byte_pos;
     logic len_phase; 
     logic first_body;
+    logic ticker_window;
+    logic price_window;
+assign ticker_window = is_trade && (byte_pos >= 16'd24) && (byte_pos <= 16'd31);
+assign price_window = is_trade && (byte_pos >= 16'd32) && (byte_pos <= 16'd35);
+shift_reg #(.WIDTH(64)) ticker_sr (
+    .clk (clk),
+    .rst_n (rst_n),
+    .data_in (data_in),
+    .valid (ticker_window),
+    .data_out (ticker)
+);
+shift_reg #(.WIDTH(32)) price_sr (
+    .clk (clk),
+    .rst_n (rst_n),
+    .data_in (data_in),
+    .valid (price_window),
+    .data_out (price)
+);
+
 
 always_ff @(posedge clk) begin
     if (!rst_n) begin
@@ -22,19 +44,21 @@ always_ff @(posedge clk) begin
     end else if (valid) begin 
         if (state == S_LEN) begin
             if (len_phase == 0) begin 
-        len_high <= data_in;
+        len_high <= data_in;    
         len_phase <= 1; 
         end else begin  
         byte_count <= {len_high, data_in}; 
         len_phase <= 0; 
         state <= S_BODY; 
         first_body <= 1;
+        byte_pos <= 16'd0;
         end 
         end else begin  // BODY
             if (first_body) begin
             is_trade <= (data_in == 8'h50);
             first_body <= 1'b0;
         end
+            byte_pos <= byte_pos + 1;
             if  (byte_count == 16'd1) begin
             state <= S_LEN;
         end else begin
