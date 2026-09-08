@@ -11,3 +11,4 @@ __pycache__/
 .Xil/
 golden/*.gz
 golden/*.bingolden/trace.txt
+.venv/
