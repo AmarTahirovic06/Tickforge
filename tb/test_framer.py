@@ -4,9 +4,9 @@ import cocotb
 from cocotb.clock import Clock 
 from cocotb.triggers import RisingEdge
 from cocotb.triggers import Timer
-def make_trade (ticker, price): # List, ticker-bytes price-int
+def make_trade (ticker, price, msg_type=b"P"):
     body = bytearray(44)
-    body[0] = ord('P')
+    body[0] = ord(msg_type)
     body[24:32] = ticker.ljust(8, b' ')
     body[32:36] = price.to_bytes(4, 'big')
     return [0x00, 0x2C] + list(body)
@@ -34,7 +34,7 @@ async def test_framer_finds_boundaries(dut):
         await Timer(1, unit="ns")
         assert dut.state.value == exp, f"byte{i} (0x{byte:02X}): is_trade_expected {exp_trade}, expected {exp}, got {dut.state.value}"
 @cocotb.test()
-async def test_framer_extracts_fields(dut):
+async def test_framer_only_trades(dut):
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     dut.rst_n.value = 0 
     dut.valid.value = 0
@@ -50,6 +50,13 @@ async def test_framer_extracts_fields(dut):
         await Timer(1, unit="ns")
     assert dut.ticker.value == int.from_bytes(b'APPL'.ljust(8, b' '), 'big')
     assert dut.price.value == 1234500, f"price got {dut.price.value}"
+    stream2 = make_trade(b'MSFT', 9999999, b'A')
+    for byte in stream2:
+        dut.data_in.value = byte 
+        await RisingEdge(dut.clk)
+        await Timer(1, unit="ns")
+    assert dut.ticker.value == int.from_bytes(b'APPL'.ljust(8, b' '), 'big'), f"ticker changed on non-P: {hex(dut.ticker.value)}"
+    assert dut.price.value == 1234500, f"price changed on non-P: {dut.price.value}"
     
     
     
