@@ -10,5 +10,7 @@ __pycache__/
 *.log
 .Xil/
 golden/*.gz
-golden/*.bingolden/trace.txt
+golden/*.bin
+trace.txt
 .venv/
+symbol_table.mem

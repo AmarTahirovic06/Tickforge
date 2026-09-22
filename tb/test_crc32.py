@@ -3,7 +3,7 @@ from cocotb.triggers import Timer
 import zlib
 @cocotb.test()
 async def test_crc_matches_zlib(dut):
-    for ticker in [b'MU', b'NVDA', b'APPL', b'VEEV']:
+    for ticker in [b'MU', b'NVDA', b'AAPL', b'VEEV']:
         v = int.from_bytes(ticker.ljust(8, b' '), 'big') 
         dut.data_in.value = v 
         await Timer(1, unit="ns")

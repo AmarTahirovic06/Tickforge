@@ -1,6 +1,5 @@
 import gzip
 Itch = gzip.open("itch50_05_18.gz", "rb")
-counts = {}
 prev = {}
 ring = {}
 S = {}

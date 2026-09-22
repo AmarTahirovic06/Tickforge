@@ -32,7 +32,8 @@ async def test_framer_finds_boundaries(dut):
         dut.data_in.value = byte
         await RisingEdge(dut.clk)
         await Timer(1, unit="ns")
-        assert dut.state.value == exp, f"byte{i} (0x{byte:02X}): is_trade_expected {exp_trade}, expected {exp}, got {dut.state.value}"
+        assert dut.state.value == exp, f"byte{i} (0x{byte:02X}): expected state {exp}, got {dut.state.value}"
+        assert dut.is_trade.value == exp_trade, f"byte{i} (0x{byte:02X}): expected is_trade {exp_trade}, got {int(dut.is_trade.value)}"
 @cocotb.test()
 async def test_framer_only_trades(dut):
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
@@ -43,19 +44,19 @@ async def test_framer_only_trades(dut):
     dut.rst_n.value = 1
     await RisingEdge(dut.clk)
     dut.valid.value = 1
-    stream = make_trade(b'APPL', 1234500)
+    stream = make_trade(b'AAPL', 1234500)
     for byte in stream: 
         dut.data_in.value = byte 
         await RisingEdge(dut.clk)
         await Timer(1, unit="ns")
-    assert dut.ticker.value == int.from_bytes(b'APPL'.ljust(8, b' '), 'big')
+    assert dut.ticker.value == int.from_bytes(b'AAPL'.ljust(8, b' '), 'big')
     assert dut.price.value == 1234500, f"price got {dut.price.value}"
     stream2 = make_trade(b'MSFT', 9999999, b'A')
     for byte in stream2:
         dut.data_in.value = byte 
         await RisingEdge(dut.clk)
         await Timer(1, unit="ns")
-    assert dut.ticker.value == int.from_bytes(b'APPL'.ljust(8, b' '), 'big'), f"ticker changed on non-P: {hex(dut.ticker.value)}"
+    assert dut.ticker.value == int.from_bytes(b'AAPL'.ljust(8, b' '), 'big'), f"ticker changed on non-P: {hex(dut.ticker.value)}"
     assert dut.price.value == 1234500, f"price changed on non-P: {dut.price.value}"
     
     
