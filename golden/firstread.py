@@ -15,7 +15,6 @@ while True:
         break 
     letter = chr(message[0]) 
     if letter == "P":
-        shares = int.from_bytes(message[20:24], "big")
         stock = message[24:32].decode("ascii").rstrip() 
         price = int.from_bytes(message[32:36], "big")
         previous = last.get(stock, None)   

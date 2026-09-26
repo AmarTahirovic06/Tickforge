@@ -5,7 +5,7 @@ from cocotb.triggers import Timer
 
 
 async def boot(dut):
-    """Hold reset, release it, and settle. Returns with one counting edge taken."""
+    # Hold reset, release it, and settle. Returns with one counting edge taken.
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     dut.rst_n.value = 0
     await RisingEdge(dut.clk)
@@ -29,7 +29,7 @@ async def test_counter_increment(dut):
 
 @cocotb.test()
 async def test_counter_wraps(dut):
-    """Four bits: 15 must roll to 0 rather than saturate."""
+    # Four bits: 15 must roll to 0 rather than saturate.
     await boot(dut)
     for _ in range(14):
         await RisingEdge(dut.clk)
@@ -42,7 +42,7 @@ async def test_counter_wraps(dut):
 
 @cocotb.test()
 async def test_counter_reset_mid_run(dut):
-    """Reset is synchronous, so it clears on the next edge, not immediately."""
+    # Reset is synchronous, so it clears on the next edge, not immediately.
     await boot(dut)
     for _ in range(5):
         await RisingEdge(dut.clk)
